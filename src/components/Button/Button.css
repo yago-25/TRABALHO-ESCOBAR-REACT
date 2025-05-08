@@ -1,0 +1,12 @@
+.btn-template {
+    background-color: #5b42f3;
+    height: 40px;
+    border-radius: 10px;
+    outline: none;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-template:hover {
+    background-color: #3d1fff;
+}
