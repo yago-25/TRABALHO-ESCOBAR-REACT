@@ -80,7 +80,13 @@ const LoginClients = () => {
           <Button width={200} placeholder="Entrar" onClick={handleLogin} />
         </div>
         <p>
-          Não tem uma conta? <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Criar</span>
+          Não tem uma conta?{" "}
+          <span
+            onClick={() => navigate("/register")}
+            style={{ textDecoration: "underline", cursor: "pointer" }}
+          >
+            Criar
+          </span>
         </p>
       </div>
       <span style={{ cursor: "pointer" }} onClick={() => navigate("/")}>
