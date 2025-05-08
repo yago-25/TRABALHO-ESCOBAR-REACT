@@ -1,4 +1,4 @@
-import { Tooltip, Table, Modal, message } from "antd";
+import { Tooltip, Table, Modal, Typography, Divider } from "antd";
 import "./../../styles/AdminPanel.css";
 import { IoIosLogOut } from "react-icons/io";
 import { FiEdit, FiPlus } from "react-icons/fi";
@@ -10,6 +10,11 @@ import Loading from "../../components/Loading/Loading";
 import RegisterCategory from "../../components/Modals/RegisterCategory";
 import RegisterProduct from "../../components/Modals/RegisterProduct";
 import { BsTrash } from "react-icons/bs";
+import { FaRegEye } from "react-icons/fa";
+import { messageAlert } from "../../utils/messageAlert";
+import Title from "antd/es/skeleton/Title";
+
+const { Text } = Typography;
 
 const AdminPanel = () => {
   const options = [
@@ -29,6 +34,11 @@ const AdminPanel = () => {
   const [modalCategorias, setModalCategorias] = useState(false);
   const [modalProdutos, setModalProdutos] = useState(false);
   const [modalVendas, setModalVendas] = useState(false);
+  const [modalViewProduct, setModalViewProduct] = useState(false);
+  const [productSelectedView, setProductSelectedView] = useState(null);
+  const [modalViewCategory, setModalViewCategory] = useState(false);
+  const [categorySelectedView, setCategorySelectedView] = useState(null);
+  console.log(categorySelectedView, "categorySelectedView");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
@@ -37,55 +47,32 @@ const AdminPanel = () => {
     try {
       let response;
       if (selectedProduct) {
-        console.log(selectedProduct, "cu");
-        console.log(data, "data data cu");
-        response = await api.put(
-          "/produtos",
-          {
-            id: data._id,
-            nome: data.nome,
-            quantidade: data.quantidade,
-            preco: data.preco,
-            categoria: data.categoria,
-            descricao: data.descricao,
-            imagem: data.imagem,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
+        response = await api.put("/produtos", {
+          id: data._id,
+          nome: data.nome,
+          quantidade: data.quantidade,
+          preco: data.preco,
+          categoria: data.categoria,
+          descricao: data.descricao,
+          imagem: data.imagem,
+        });
         setProdutos((prev) =>
           prev.map((produto) =>
             produto._id === selectedProduct._id ? response.data : produto
           )
         );
-        console.log(
-          produtos,
-          "produtosprodutosprodutosprodutosprodutosprodutos"
-        );
       } else {
-        response = await api.post(
-          "/produtos",
-          {
-            nome: data.nome,
-            quantidade: data.quantidade,
-            preco: data.preco,
-            categoria: data.categoria,
-            descricao: data.descricao,
-            usuario: data.usuario,
-            imagem: data.imagem,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
+        response = await api.post("/produtos", {
+          nome: data.nome,
+          quantidade: data.quantidade,
+          preco: data.preco,
+          categoria: data.categoria,
+          descricao: data.descricao,
+          usuario: data.usuario,
+          imagem: data.imagem,
+        });
         setProdutos((prev) => [...prev, response.data]);
       }
-
       setModalProdutos(false);
       setSelectedProduct(null);
     } catch (e) {
@@ -98,29 +85,31 @@ const AdminPanel = () => {
 
   const handleRemoveProduct = async (id) => {
     if (!id) {
-      alert("Id do produto não encontrado (não sei como...)");
+      messageAlert({
+        type: "error",
+        message: "Id do produto não encontrado (não sei como...)",
+      });
       return;
     }
 
     setLoading(true);
     try {
-      await api.delete(
-        "/produtos",
-        {
-          data: { id },
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
-      );
+      await api.delete("/produtos", {
+        data: { id },
+      });
 
       setSelected("Produtos");
       setProdutos((prev) => prev.filter((produto) => produto._id !== id));
+      messageAlert({
+        type: "success",
+        message: "Produto deletado com sucesso!",
+      });
     } catch (e) {
       console.log("Erro ao deletar produto: ", e);
-      alert("Erro ao deletar produto.");
+      messageAlert({
+        type: "error",
+        message: "Erro ao deletar produto.",
+      });
     } finally {
       setLoading(false);
     }
@@ -131,43 +120,38 @@ const AdminPanel = () => {
     try {
       let response;
       if (selectedCategory) {
-        response = await api.put(
-          "/categorias",
-          {
-            id: data._id,
-            nome_categoria: data.nome_categoria,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
+        response = await api.put("/categorias", {
+          id: data._id,
+          nome_categoria: data.nome_categoria,
+        });
         setCategorias((prev) =>
           prev.map((categoria) =>
             categoria._id === selectedCategory._id ? response.data : categoria
           )
         );
+        messageAlert({
+          type: "success",
+          message: "Categoria cadastrada com sucesso!",
+        });
       } else {
-        response = await api.post(
-          "/categorias",
-          {
-            nome_categoria: data.nome_categoria,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
+        response = await api.post("/categorias", {
+          nome_categoria: data.nome_categoria,
+        });
         setCategorias((prev) => [...prev, response.data]);
+        messageAlert({
+          type: "success",
+          message: "Categoria atualizada com sucesso!",
+        });
       }
 
       setModalCategorias(false);
       setSelectedCategory(null);
     } catch (e) {
-      console.log("Erro ao cadastrar/atualizar produto: ", e);
-      alert("Erro ao cadastrar/atualizar produto.");
+      console.log("Erro ao cadastrar/atualizar categoria: ", e);
+      messageAlert({
+        type: "error",
+        message: "Erro ao cadastrar/atualizar categoria.",
+      });
     } finally {
       setLoadingModal(false);
     }
@@ -175,30 +159,31 @@ const AdminPanel = () => {
 
   const handleRemoveCategory = async (id) => {
     if (!id) {
-      alert("Id da categoria não encontrado (não sei como...)");
+      messageAlert({
+        type: "error",
+        message: "Id da categoria não encontrado (não sei como...)",
+      });
       return;
     }
 
     setLoading(true);
     try {
-      await api.delete(
-        "/categorias",
-        {
-          data: { id },
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
-      );
+      await api.delete("/categorias", {
+        data: { id },
+      });
 
       setSelected("Categorias");
       setCategorias((prev) => prev.filter((categoria) => categoria._id !== id));
-      message.success("Categoria deletada com sucesso!");
+      messageAlert({
+        type: "success",
+        message: "Categoria deletada com sucesso!",
+      });
     } catch (e) {
       console.log("Erro ao deletar produto: ", e);
-      message.error("Erro ao deletar categoria.");
+      messageAlert({
+        type: "error",
+        message: "Erro ao deletar categoria.",
+      });
     } finally {
       setLoading(false);
     }
@@ -240,7 +225,7 @@ const AdminPanel = () => {
                   title: "Ações",
                   dataIndex: "acoes",
                   key: "acoes",
-                  render: (text, produto) => (
+                  render: (text, category) => (
                     <div
                       style={{
                         display: "flex",
@@ -249,27 +234,45 @@ const AdminPanel = () => {
                         gap: "5px",
                       }}
                     >
-                      <FiEdit
-                        style={{
-                          width: "18px",
-                          height: "18px",
-                          cursor: "pointer",
-                          color: "#d1a400",
-                        }}
-                        onClick={() => {
-                          setSelectedCategory(produto);
-                          setModalCategorias(true);
-                        }}
-                      />
-                      <BsTrash
-                        style={{
-                          width: "18px",
-                          height: "18px",
-                          cursor: "pointer",
-                          color: "red",
-                        }}
-                        onClick={() => handleRemoveCategory(produto._id)}
-                      />
+                      <Tooltip title="Visualizar Categoria">
+                        <FaRegEye
+                          style={{
+                            width: "18px",
+                            height: "18px",
+                            cursor: "pointer",
+                            color: "#5b42f3",
+                          }}
+                          onClick={() => {
+                            setCategorySelectedView(category);
+                            setModalViewCategory(true);
+                          }}
+                        />
+                      </Tooltip>
+                      <Tooltip title="Editar">
+                        <FiEdit
+                          style={{
+                            width: "18px",
+                            height: "18px",
+                            cursor: "pointer",
+                            color: "#d1a400",
+                          }}
+                          onClick={() => {
+                            setSelectedCategory(category);
+                            setModalCategorias(true);
+                          }}
+                        />
+                      </Tooltip>
+                      <Tooltip title="Apagar">
+                        <BsTrash
+                          style={{
+                            width: "18px",
+                            height: "18px",
+                            cursor: "pointer",
+                            color: "red",
+                          }}
+                          onClick={() => handleRemoveCategory(category._id)}
+                        />
+                      </Tooltip>
                     </div>
                   ),
                 },
@@ -301,11 +304,33 @@ const AdminPanel = () => {
               scroll={{ x: "max-content" }}
               pagination={{ pageSize: 10 }}
               columns={[
-                { title: "Nome", dataIndex: "nome", key: "nome" },
+                {
+                  title: "Nome",
+                  dataIndex: "nome",
+                  key: "nome",
+                  ellipsis: true,
+                  onCell: () => ({
+                    style: {
+                      maxWidth: 150,
+                      overflow: "hidden",
+                      whiteSpace: "nowrap",
+                      textOverflow: "ellipsis",
+                    },
+                  }),
+                },
                 {
                   title: "Descrição",
                   dataIndex: "descricao",
                   key: "descricao",
+                  ellipsis: true,
+                  onCell: () => ({
+                    style: {
+                      maxWidth: 200,
+                      overflow: "hidden",
+                      whiteSpace: "nowrap",
+                      textOverflow: "ellipsis",
+                    },
+                  }),
                 },
                 {
                   title: "Quantidade",
@@ -350,27 +375,45 @@ const AdminPanel = () => {
                         gap: "5px",
                       }}
                     >
-                      <FiEdit
-                        style={{
-                          width: "18px",
-                          height: "18px",
-                          cursor: "pointer",
-                          color: "#d1a400",
-                        }}
-                        onClick={() => {
-                          setSelectedProduct(produto);
-                          setModalProdutos(true);
-                        }}
-                      />
-                      <BsTrash
-                        style={{
-                          width: "18px",
-                          height: "18px",
-                          cursor: "pointer",
-                          color: "red",
-                        }}
-                        onClick={() => handleRemoveProduct(produto._id)}
-                      />
+                      <Tooltip title="Visualizar Produto">
+                        <FaRegEye
+                          style={{
+                            width: "18px",
+                            height: "18px",
+                            cursor: "pointer",
+                            color: "#5b42f3",
+                          }}
+                          onClick={() => {
+                            setProductSelectedView(produto);
+                            setModalViewProduct(true);
+                          }}
+                        />
+                      </Tooltip>
+                      <Tooltip title="Editar">
+                        <FiEdit
+                          style={{
+                            width: "18px",
+                            height: "18px",
+                            cursor: "pointer",
+                            color: "#d1a400",
+                          }}
+                          onClick={() => {
+                            setSelectedProduct(produto);
+                            setModalProdutos(true);
+                          }}
+                        />
+                      </Tooltip>
+                      <Tooltip title="Apagar">
+                        <BsTrash
+                          style={{
+                            width: "18px",
+                            height: "18px",
+                            cursor: "pointer",
+                            color: "red",
+                          }}
+                          onClick={() => handleRemoveProduct(produto._id)}
+                        />
+                      </Tooltip>
                     </div>
                   ),
                 },
@@ -444,11 +487,7 @@ const AdminPanel = () => {
       Categorias: async () => {
         setLoading(true);
         try {
-          const { data } = await api.get("/categorias", {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          });
+          const { data } = await api.get("/categorias");
           setCategorias(data);
         } catch (e) {
           console.error("Erro ao listar categorias: ", e);
@@ -460,11 +499,7 @@ const AdminPanel = () => {
       Produtos: async () => {
         setLoading(true);
         try {
-          const { data } = await api.get("/produtos", {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          });
+          const { data } = await api.get("/produtos");
           setProdutos(data);
         } catch (e) {
           console.error("Erro ao listar produtos: ", e);
@@ -476,11 +511,7 @@ const AdminPanel = () => {
       Vendas: async () => {
         setLoading(true);
         try {
-          const { data } = await api.get("/venda", {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          });
+          const { data } = await api.get("/venda");
           setVendas(data);
         } catch (e) {
           console.error("Erro ao listar vendas: ", e);
@@ -580,6 +611,100 @@ const AdminPanel = () => {
         footer={null}
       >
         <RegisterCategory />
+      </Modal>
+      <Modal
+        title="Visualização de Produto"
+        onCancel={() => setModalViewProduct(false)}
+        open={modalViewProduct}
+        footer={null}
+        centered
+      >
+        {productSelectedView && (
+          <div className="product-details">
+            <div className="product-info">
+              <div className="product-image">
+                <img
+                  src={productSelectedView.imagem}
+                  alt="Imagem do Produto"
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    objectFit: "cover",
+                    borderRadius: "10px",
+                  }}
+                />
+              </div>
+
+              <div className="product-text">
+                <Text strong style={{ fontSize: "20px" }}>
+                  {productSelectedView.nome}
+                </Text>
+                <div style={{ marginTop: "10px" }}>
+                  <Text type="secondary">
+                    Categoria: {productSelectedView.categoria}
+                  </Text>
+                </div>
+                <div style={{ marginTop: "10px" }}>
+                  <Text type="secondary">
+                    Preço: R$ {Number(productSelectedView.preco).toFixed(2)}
+                  </Text>
+                </div>
+                <div style={{ marginTop: "10px" }}>
+                  <Text type="secondary">
+                    Quantidade: {productSelectedView.quantidade}
+                  </Text>
+                </div>
+                <div style={{ marginTop: "20px" }}>
+                  <Text strong>Descrição:</Text>
+                  <div
+                    style={{
+                      marginTop: "10px",
+                      maxHeight: "200px",
+                      overflow: "hidden",
+                      WebkitBoxOrient: "vertical",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 3,
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    <Tooltip title={productSelectedView.descricao}>
+                      <Text>{productSelectedView.descricao}</Text>
+                    </Tooltip>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
+      <Modal
+        title="Visualização de Categoria"
+        onCancel={() => setModalViewCategory(false)}
+        open={modalViewCategory}
+        footer={null}
+        centered
+      >
+        {categorySelectedView && (
+          <>
+            <div style={{ padding: "10px 0" }}>
+              <Title level={5} style={{ marginBottom: 0 }}>
+                Nome da Categoria:
+              </Title>
+              <Text type="secondary">
+                {categorySelectedView.nome}
+              </Text>
+            </div>
+
+            <Divider />
+
+            <div style={{ padding: "10px 0" }}>
+              <Title level={5} style={{ marginBottom: 0 }}>
+                ID do Usuário Criador:
+              </Title>
+              <Text type="secondary">{categorySelectedView.usuario}</Text>
+            </div>
+          </>
+        )}
       </Modal>
     </div>
   );

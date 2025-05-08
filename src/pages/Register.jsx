@@ -4,6 +4,7 @@ import Input from "../components/Input/Input";
 import { useNavigate } from "react-router-dom";
 import Loading from "../components/Loading/Loading";
 import { api } from "../services/api";
+import { messageAlert } from "../utils/messageAlert";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -15,12 +16,18 @@ const Register = () => {
 
   const handleRegister = async () => {
     if (!user || !password || !confirmPassword) {
-      alert("Por favor, preencha todos os dados.");
+      messageAlert({
+        type: "error",
+        message: "Por favor, preencha todos os campos."
+      });
       return;
     }
 
     if (password !== confirmPassword) {
-      alert("As senhas não coincidem.");
+      messageAlert({
+        type: "error",
+        message: "As senhas não coincidem."
+      });
       return;
     }
 
@@ -33,12 +40,18 @@ const Register = () => {
       });
 
       if (response.data._id) {
-        alert("Registro realizado com sucesso!");
+        messageAlert({
+          type: "success",
+          message: "Registro realizdo com sucesso!"
+        });
         navigate("/login/client");
       }
     } catch(e) {
       console.log("Erro ao fazer registro: ", e);
-      alert("Erro ao fazer registro.");
+      messageAlert({
+        type: "error",
+        message: "Erro ao fazer registro."
+      });
     } finally {
       setLoading(false);
     }
@@ -97,7 +110,7 @@ const Register = () => {
           </div>
         </div>
         <div>
-          <Button width={200} placeholder="Entrar" onClick={handleRegister} />
+          <Button width={200} placeholder="Cadastrar" onClick={handleRegister} />
         </div>
       </div>
       <span style={{ cursor: "pointer" }} onClick={() => navigate("/")}>

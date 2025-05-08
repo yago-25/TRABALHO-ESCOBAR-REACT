@@ -22,7 +22,12 @@ const RegisterProduct = ({ onSubmit, product }) => {
   }, [product, form]);
 
   const handleFinish = (values) => {
-    if (onSubmit) onSubmit(values);
+    if (onSubmit) {
+      if (product?._id) {
+        values._id = product._id;
+      }
+      onSubmit(values);
+    }
   };
 
   return (

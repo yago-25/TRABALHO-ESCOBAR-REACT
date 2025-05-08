@@ -40,12 +40,13 @@ body {
   --secondary-color: #9ca1ffaa;
   position: relative;
   width: 400px;
-  height: 36px;
+  height: 45px;
   background-color: var(--bg-color);
   border: 2px solid var(--main-color);
   border-radius: 34px;
   display: flex;
   justify-content: space-evenly;
+  align-items: center;
   flex-direction: row;
   box-shadow: 4px 4px var(--main-color);
   margin-top: 20px;
@@ -54,7 +55,7 @@ body {
 .option {
   margin-right: 5px;
   width: 80.5px;
-  height: 28px;
+  height: 40px;
   position: relative;
   top: 2px;
   left: 2px;
@@ -134,4 +135,46 @@ body {
 
 .ant-table-tbody > tr:hover {
   background-color: #fafafa;
+}
+
+.product-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.product-info {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.product-image {
+  flex: 1;
+  max-width: 200px;
+}
+
+.product-text {
+  flex: 2;
+}
+
+.product-text .ant-typography {
+  font-size: 16px;
+}
+
+.product-text .ant-typography strong {
+  font-size: 20px;
+  color: #000;
+}
+
+.product-text .ant-typography.secondary {
+  font-size: 14px;
+}
+
+.product-image img {
+  border-radius: 10px;
+}
+
+.product-text div {
+  margin-bottom: 10px;
 }

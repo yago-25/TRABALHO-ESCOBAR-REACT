@@ -2,18 +2,24 @@ import { Input, Button, Form } from "antd";
 import { useEffect } from "react";
 
 const RegisterCategory = ({ onSubmit, category }) => {
+  console.log(category, 'category');
   const [form] = Form.useForm();
 
   useEffect(() => {
     if (category) {
       form.setFieldsValue({
-        nome_categoria: category.nome_categoria,
+        nome_categoria: category.nome,
       });
     }
   }, [category, form]);
 
   const handleFinish = (values) => {
-    if (onSubmit) onSubmit(values);
+    if (onSubmit) {
+      if (category?._id) {
+        values._id = category._id;
+      }
+      onSubmit(values);
+    }
   };
 
   return (
