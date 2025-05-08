@@ -75,4 +75,8 @@ body {
         var(--s),
       repeating-conic-gradient(var(--c2) 0 50%, var(--c1) 0 100%)
         calc(0.5 * var(--s)) 0 / calc(2 * var(--s)) var(--s);
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
 }

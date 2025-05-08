@@ -11,7 +11,7 @@ const Loading = () => {
         height: "100%",
       }}
     >
-      <span class="loader"></span>
+      <span className="loader"></span>
     </div>
   );
 };

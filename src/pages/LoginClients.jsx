@@ -25,7 +25,15 @@ const LoginClients = () => {
         usuario: user,
         senha: password,
       });
-      console.log(response, "response");
+
+      if (response.data.token) {
+        console.log("Login realizado com sucesso!");
+        localStorage.setItem("accessToken", response.data.token);
+        localStorage.setItem("userName", user);
+        navigate("/admin/panel");
+      } else {
+        alert("Usuário ou senha inválidos.");
+      }
     } catch (e) {
       console.log("Erro ao fazer login: ", e);
       alert("Erro ao fazer Login.");
@@ -52,7 +60,7 @@ const LoginClients = () => {
 
   return (
     <div className="div-login-clients">
-      <h1>Login - Clientes</h1>
+      <h1>Login - Admins</h1>
       <div className="div-inputs">
         <div className="div-separe-inputs">
           <div id="div-labels">
