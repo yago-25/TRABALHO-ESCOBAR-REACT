@@ -13,6 +13,7 @@ import { BsTrash } from "react-icons/bs";
 import { FaRegEye } from "react-icons/fa";
 import { messageAlert } from "../../utils/messageAlert";
 import Title from "antd/es/skeleton/Title";
+import dayjs from "dayjs";
 
 const { Text } = Typography;
 
@@ -38,9 +39,13 @@ const AdminPanel = () => {
   const [productSelectedView, setProductSelectedView] = useState(null);
   const [modalViewCategory, setModalViewCategory] = useState(false);
   const [categorySelectedView, setCategorySelectedView] = useState(null);
-  console.log(categorySelectedView, "categorySelectedView");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
+
+  const currency = new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
 
   const handleCreateOrUpdateProduct = async (data) => {
     setLoadingModal(true);
@@ -217,7 +222,7 @@ const AdminPanel = () => {
               dataSource={categorias}
               rowKey="_id"
               scroll={{ x: "max-content" }}
-              pagination={{ pageSize: 10 }}
+              pagination={{ pageSize: 3 }}
               columns={[
                 { title: "Nome", dataIndex: "nome", key: "nome" },
                 { title: "Usuário", dataIndex: "usuario", key: "usuario" },
@@ -230,7 +235,7 @@ const AdminPanel = () => {
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: "center",
+                        justifyContent: "flex-start",
                         gap: "5px",
                       }}
                     >
@@ -302,7 +307,7 @@ const AdminPanel = () => {
               dataSource={produtos}
               rowKey="_id"
               scroll={{ x: "max-content" }}
-              pagination={{ pageSize: 10 }}
+              pagination={{ pageSize: 3 }}
               columns={[
                 {
                   title: "Nome",
@@ -371,7 +376,7 @@ const AdminPanel = () => {
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: "center",
+                        justifyContent: "flex-start",
                         gap: "5px",
                       }}
                     >
@@ -434,35 +439,51 @@ const AdminPanel = () => {
               }}
             >
               <h2>Vendas</h2>
-              <FiPlus
-                style={{ width: "36px", height: "36px", cursor: "pointer" }}
-                onClick={() => setModalVendas(true)}
-              />
             </div>
             <Table
               dataSource={vendas}
               rowKey="_id"
               scroll={{ x: "max-content" }}
-              pagination={{ pageSize: 10 }}
+              pagination={{ pageSize: 3 }}
               columns={[
                 {
                   title: "Nome do Cliente",
                   dataIndex: "nomeCliente",
                   key: "nomeCliente",
                 },
-                { title: "Data", dataIndex: "data", key: "data" },
+                {
+                  title: "Data",
+                  dataIndex: "data",
+                  key: "data",
+                  render: (data) => dayjs(data).format("DD/MM/YYYY"),
+                },
                 {
                   title: "Produtos",
                   dataIndex: "produtos",
                   key: "produtos",
                   render: (produtos) => (
-                    <ul>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "8px",
+                      }}
+                    >
                       {produtos.map((p, idx) => (
-                        <li key={idx}>
-                          {p.nome} - {p.quantidade} x R$ {p.preco.toFixed(2)}
-                        </li>
+                        <div
+                          key={idx}
+                          style={{
+                            padding: "4px 0",
+                            borderBottom: "1px solid #f0f0f0",
+                          }}
+                        >
+                          <Typography.Text strong>{p.nome}</Typography.Text>
+                          <div style={{ fontSize: "13px", color: "#595959" }}>
+                            {p.quantidade} x {currency.format(p.preco)}
+                          </div>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   ),
                 },
                 { title: "Usuário", dataIndex: "usuario", key: "usuario" },
@@ -487,7 +508,11 @@ const AdminPanel = () => {
       Categorias: async () => {
         setLoading(true);
         try {
-          const { data } = await api.get("/categorias");
+          const { data } = await api.get("/categorias", {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          });
           setCategorias(data);
         } catch (e) {
           console.error("Erro ao listar categorias: ", e);
@@ -499,7 +524,11 @@ const AdminPanel = () => {
       Produtos: async () => {
         setLoading(true);
         try {
-          const { data } = await api.get("/produtos");
+          const { data } = await api.get("/produtos", {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          });
           setProdutos(data);
         } catch (e) {
           console.error("Erro ao listar produtos: ", e);
@@ -511,7 +540,11 @@ const AdminPanel = () => {
       Vendas: async () => {
         setLoading(true);
         try {
-          const { data } = await api.get("/venda");
+          const { data } = await api.get("/venda", {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          });
           setVendas(data);
         } catch (e) {
           console.error("Erro ao listar vendas: ", e);
@@ -577,7 +610,10 @@ const AdminPanel = () => {
       <div className="table-div">{renderTable()}</div>
       <Modal
         title="Cadastrar Categoria"
-        onCancel={() => setModalCategorias(false)}
+        onCancel={() => {
+          setModalCategorias(false);
+          setSelectedCategory(null);
+        }}
         open={modalCategorias}
         footer={null}
       >
@@ -690,9 +726,7 @@ const AdminPanel = () => {
               <Title level={5} style={{ marginBottom: 0 }}>
                 Nome da Categoria:
               </Title>
-              <Text type="secondary">
-                {categorySelectedView.nome}
-              </Text>
+              <Text type="secondary">{categorySelectedView.nome}</Text>
             </div>
 
             <Divider />

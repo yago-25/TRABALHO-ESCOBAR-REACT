@@ -3,11 +3,12 @@ import Button from "../components/Button/Button";
 import "./../styles/LoginClients.css";
 import Input from "../components/Input/Input";
 import { useState } from "react";
-import { api } from "../services/api";
 import Loading from "../components/Loading/Loading";
+import { useAuth } from "../contexts/AuthContext";
 
 const LoginClients = () => {
   const navigate = useNavigate();
+  const { loginWithCredentials } = useAuth();
 
   const [user, setUser] = useState();
   const [password, setPassword] = useState();
@@ -20,25 +21,16 @@ const LoginClients = () => {
     }
 
     setLoading(true);
-    try {
-      const response = await api.post("/login", {
-        usuario: user,
-        senha: password,
-      });
+    const result = await loginWithCredentials(user, password);
+    setLoading(false);
 
-      if (response.data.token) {
-        console.log("Login realizado com sucesso!");
-        localStorage.setItem("accessToken", response.data.token);
-        localStorage.setItem("userName", user);
+    if (result.success) {
+      console.log("Login realizado com sucesso!");
+      setTimeout(() => {
         navigate("/admin/panel");
-      } else {
-        alert("Usuário ou senha inválidos.");
-      }
-    } catch (e) {
-      console.log("Erro ao fazer login: ", e);
-      alert("Erro ao fazer Login.");
-    } finally {
-      setLoading(false);
+      }, 1000);
+    } else {
+      alert(result.message || "Erro ao fazer login.");
     }
   };
 

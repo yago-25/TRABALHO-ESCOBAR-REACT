@@ -2,7 +2,6 @@ import { Input, Button, Form } from "antd";
 import { useEffect } from "react";
 
 const RegisterCategory = ({ onSubmit, category }) => {
-  console.log(category, 'category');
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -10,6 +9,8 @@ const RegisterCategory = ({ onSubmit, category }) => {
       form.setFieldsValue({
         nome_categoria: category.nome,
       });
+    } else {
+      form.resetFields();
     }
   }, [category, form]);
 

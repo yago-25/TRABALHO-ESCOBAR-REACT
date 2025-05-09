@@ -33,11 +33,11 @@ body {
 }
 
 .wrapper {
-  --font-color-dark: #2f3afcaa;
+  --font-color-dark: #080707;
   --font-color-light: #fff;
   --bg-color: #fff;
-  --main-color: #2f3afcaa;
-  --secondary-color: #9ca1ffaa;
+  --main-color: #080707;
+  --secondary-color: #464646;
   position: relative;
   width: 400px;
   height: 45px;
