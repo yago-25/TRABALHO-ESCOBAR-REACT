@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { apiMock } from "../services/api";
+import { api, myUser } from "../services/api";
 import Loading from "../components/Loading/Loading";
 import Header from "../components/Header/Header";
 import { TypeAnimation } from "react-type-animation";
@@ -11,6 +11,7 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useCart } from "../contexts/CartContext";
 import { HiTrash } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
+import { messageAlert } from "../utils/messageAlert";
 
 const HomeClients = () => {
   const navigate = useNavigate();
@@ -38,15 +39,17 @@ const HomeClients = () => {
   const getProducts = async () => {
     setLoading(true);
     try {
-      // Usando apiMock com Authentication fixo, pois essa rota pede token pra ser acessada
-      const response = await apiMock.get("/produtos");
+      const response = await api.get(`/produtos/${myUser}`);
 
       if (response.data.length) {
         setProducts(response.data);
       }
     } catch (e) {
       console.log("Erro ao buscar produtos: ", e);
-      alert("Erro ao buscar produtos.");
+      messageAlert({
+        type: "error",
+        message: "Erro ao buscar produtos."
+      });
     } finally {
       setLoading(false);
     }
@@ -143,14 +146,14 @@ const HomeClients = () => {
             width: "1100px",
           }}
         >
-          <p>Nome</p>
-          <p>Descrição</p>
-          <p>Preço</p>
+          <p><strong>🧾 Nome:</strong></p>
+          <p><strong>📄 Descrição:</strong></p>
+          <p><strong>💰 Preço:</strong></p>
           <Tooltip title="Quantidade Disponível">
-            <p>Qtde. Disp.</p>
+            <p><strong>📦 Qtd:</strong></p>
           </Tooltip>
-          <p>Imagem</p>
-          <p>Ações</p>
+          <p><strong>📱 Imagem:</strong></p>
+          <p><strong>✍ Ações:</strong></p>
         </div>
 
         <div style={{ width: "1100px" }}>
@@ -272,173 +275,164 @@ const HomeClients = () => {
         </div>
       </div>
       <Modal
-        title={productSelected ? productSelected.nome : "Visualizar produto"}
+        title={
+          <span style={{ fontSize: "24px", fontWeight: "bold", display: "flex", alignItems: "center", gap: "10px" }}>
+            🛍️ {productSelected ? productSelected.nome : "Visualizar produto"}
+          </span>
+        }
         open={modal}
         onCancel={() => {
           setModal(false);
           setProdutoSelected(null);
         }}
         footer={null}
+        styles={{
+          body: {
+            backgroundColor: "#f9f9f9",
+            borderRadius: "12px",
+            padding: "24px",
+          }
+        }}
       >
-        <div>
-          {productSelected && (
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "16px" }}
-            >
-              <img
-                src={productSelected.imagem}
-                alt={productSelected.nome}
-                style={{
-                  width: "100%",
-                  maxHeight: "300px",
-                  objectFit: "cover",
-                  borderRadius: "12px",
-                }}
-              />
-              <p>
-                <strong>Descrição:</strong> {productSelected.descricao}
-              </p>
-              <p>
-                <strong>Preço:</strong> R${" "}
-                {Number(productSelected.preco).toFixed(2)}
-              </p>
-              <p>
-                <strong>Quantidade disponível:</strong>{" "}
-                {productSelected.quantidade}
-              </p>
-            </div>
-          )}
-        </div>
+        {productSelected && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            <img
+              src={productSelected.imagem}
+              alt={productSelected.nome}
+              style={{
+                width: "100%",
+                maxHeight: "300px",
+                objectFit: "cover",
+                borderRadius: "12px",
+                boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+              }}
+            />
+            <p style={{ fontSize: "16px", lineHeight: "1.6" }}>
+              <strong>📄 Descrição:</strong> {productSelected.descricao}
+            </p>
+            <p style={{ fontSize: "16px", lineHeight: "1.6" }}>
+              <strong>💰 Preço:</strong> R$ {Number(productSelected.preco).toFixed(2)}
+            </p>
+            <p style={{ fontSize: "16px", lineHeight: "1.6" }}>
+              <strong>📦 Quantidade disponível:</strong> {productSelected.quantidade}
+            </p>
+          </div>
+        )}
       </Modal>
       <Drawer
-        title="Carrinho de compras"
+        title={
+          <span style={{ fontSize: "22px", fontWeight: "bold" }}>🛒 Carrinho de Compras</span>
+        }
         placement="right"
         closable={true}
         width={420}
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
+        bodyStyle={{
+          backgroundColor: "#f9f9f9",
+          padding: "20px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          height: "100%",
+        }}
       >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "10px",
-            height: "90%",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <h2>Finalize seu Pedido</h2>
+        <div style={{ flex: 1, overflowY: "auto", paddingRight: "5px" }}>
+          <h2 style={{ textAlign: "center", marginBottom: "20px" }}>🧾 Finalize seu Pedido</h2>
+
+          {cartItems.length > 0 ? (
+            cartItems.map((product) => (
+              <div
+                key={product._id}
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  padding: "16px",
+                  borderRadius: "12px",
+                  backgroundColor: "#ffffff",
+                  boxShadow: "0 4px 10px rgba(0, 0, 0, 0.05)",
+                  marginBottom: "16px",
+                  gap: "16px",
+                  border: "1px solid #e0e0e0",
+                }}
+              >
+                <img
+                  src={product.imagem}
+                  alt={product.nome}
+                  style={{
+                    width: "80px",
+                    height: "80px",
+                    objectFit: "cover",
+                    borderRadius: "8px",
+                  }}
+                />
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: "16px", fontWeight: "600", margin: "0" }}>{product.nome}</p>
+                  <p style={{ fontSize: "14px", color: "#555", margin: "4px 0 8px" }}>{product.descricao}</p>
+                  <div style={{ fontSize: "14px", color: "#333", marginBottom: "8px" }}>
+                    💵 <strong>Preço:</strong> R$ {Number(product.preco).toFixed(2)}
+                  </div>
+                  <HiTrash
+                    style={{
+                      color: "red",
+                      width: "20px",
+                      height: "20px",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => removeFromCart(product._id)}
+                    title="Remover"
+                  />
+                </div>
+              </div>
+            ))
+          ) : (
             <div
               style={{
                 display: "flex",
-                flexDirection: "column",
-                alignItems: `${cartItems.length > 0 ? "" : "center"}`,
-                gap: "10px",
-                overflowY: `${cartItems.length > 0 ? "auto" : "hidden"}`,
-                overflowX: "hidden",
-                maxHeight: "750px",
-                paddingRight: `${cartItems.length > 0 ? "20px" : "0px"}`,
-                scrollbarWidth: "thin",
-                scrollbarColor: "rgba(0, 0, 0, 0.747) #f0f0f0",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "40px 0",
               }}
             >
-              {cartItems.length > 0 ? (
-                cartItems.map((product) => (
-                  <div
-                    key={product._id}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      padding: "12px",
-                      borderRadius: "8px",
-                      gap: "20px",
-                      backgroundColor: "#f0f0f0",
-                      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                      width: "94%",
-                      border: "1px dashed rgba(0, 0, 0, 0.747)",
-                    }}
-                  >
-                    <img
-                      src={product.imagem}
-                      alt={product.nome}
-                      style={{
-                        width: "80px",
-                        height: "80px",
-                        objectFit: "cover",
-                        borderRadius: "8px",
-                        marginBottom: "10px",
-                      }}
-                    />
-                    <div>
-                      <p style={{ fontWeight: "bold" }}>{product.nome}</p>
-                      <p>{product.descricao}</p>
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: "10px",
-                          alignItems: "center",
-                        }}
-                      >
-                        <span>
-                          Preço: R$ {Number(product.preco).toFixed(2)}
-                        </span>
-                      </div>
-                      <HiTrash
-                        style={{
-                          color: "red",
-                          width: "20px",
-                          height: "20px",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => removeFromCart(product._id)}
-                      />
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <p>Nenhum item Adicionado</p>
-                </div>
-              )}
+              <p style={{ color: "#777" }}>🛍️ Nenhum item adicionado ao carrinho.</p>
             </div>
-          </div>
+          )}
+        </div>
+
+        <div style={{ marginTop: "auto" }}>
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
-              width: "100%",
-              flexDirection: "column",
+              alignItems: "center",
+              padding: "16px",
+              borderTop: "1px solid #ddd",
+              marginBottom: "16px",
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                width: "100%",
-              }}
-            >
-              <h3>Total: R${totalPrice.toFixed(2)}</h3>
-              <h4>Itens: {cartItems.length}</h4>
+            <div>
+              <h3 style={{ margin: "0" }}>Total: <span style={{ color: "#1890ff" }}>R$ {totalPrice.toFixed(2)}</span></h3>
+              <p style={{ margin: "4px 0", fontSize: "14px", color: "#555" }}>Itens: {cartItems.length}</p>
             </div>
-            <button onClick={() => navigate("/client/checkout")}>
-              Ir para Pagamento
-            </button>
           </div>
+
+          <button
+            onClick={() => navigate("/client/checkout")}
+            style={{
+              width: "100%",
+              padding: "12px",
+              backgroundColor: "#1890ff",
+              color: "#fff",
+              border: "none",
+              borderRadius: "8px",
+              fontSize: "16px",
+              fontWeight: "bold",
+              cursor: "pointer",
+              transition: "background 0.3s",
+            }}
+          >
+            💳 Ir para Pagamento
+          </button>
         </div>
       </Drawer>
     </div>

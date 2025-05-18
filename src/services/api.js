@@ -16,3 +16,5 @@ export const apiMock = axios.create({
       "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoiMDEwNjIzMDA4IiwiaWF0IjoxNzQ2NzYwNzIzLCJleHAiOjE3NDY4NDcxMjN9.1DpskQKL7mKFhbZMk8JoPY9ETK3q8bckNLmzl47Irh4",
   },
 });
+
+export const myUser = '010623008';

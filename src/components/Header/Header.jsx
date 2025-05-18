@@ -11,7 +11,7 @@ const Header = ({ onCartClick, showCart = true }) => {
 
   return (
     <header className="div-header">
-      <p style={{ marginLeft: "20px" }}>React - Trabalho</p>
+      <p style={{ marginLeft: "20px" }}>🛒 Bem-vindo à Loja Digital!</p>
       <div style={{ position: "relative" }}>
         {showCart && (
           <Tooltip title="Carrinho de Compras">

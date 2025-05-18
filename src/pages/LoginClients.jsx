@@ -5,6 +5,7 @@ import Input from "../components/Input/Input";
 import { useState } from "react";
 import Loading from "../components/Loading/Loading";
 import { useAuth } from "../contexts/AuthContext";
+import { messageAlert } from "../utils/messageAlert";
 
 const LoginClients = () => {
   const navigate = useNavigate();
@@ -16,7 +17,10 @@ const LoginClients = () => {
 
   const handleLogin = async () => {
     if (!user || !password) {
-      alert("Por favor, preencha todos os dados.");
+      messageAlert({
+        type: "error",
+        message: "Por favor, preencha todos os dados."
+      });
       return;
     }
 
@@ -30,7 +34,10 @@ const LoginClients = () => {
         navigate("/admin/panel");
       }, 1000);
     } else {
-      alert(result.message || "Erro ao fazer login.");
+      messageAlert({
+        type: "error",
+        message: result.message || "Erro ao fazer login."
+      });
     }
   };
 
@@ -52,11 +59,11 @@ const LoginClients = () => {
 
   return (
     <div className="div-login-clients">
-      <h1>Login - Admins</h1>
+      <h1>🔐 Login - Admins</h1>
       <div className="div-inputs">
         <div className="div-separe-inputs">
           <div id="div-labels">
-            <label htmlFor="">Usuário</label>
+            <label htmlFor="">👤 Usuário</label>
             <Input
               width={300}
               placeholder="Insira seu Usuário"
@@ -66,7 +73,7 @@ const LoginClients = () => {
             />
           </div>
           <div id="div-labels">
-            <label htmlFor="">Senha</label>
+            <label htmlFor="">🔑 Senha</label>
             <Input
               width={300}
               placeholder="Insira sua Senha"
@@ -83,14 +90,17 @@ const LoginClients = () => {
           Não tem uma conta?{" "}
           <span
             onClick={() => navigate("/register")}
-            style={{ textDecoration: "underline", cursor: "pointer" }}
+            style={{ textDecoration: "underline", cursor: "pointer", fontWeight: "bold" }}
           >
-            Criar
+            Criar ✍️
           </span>
         </p>
       </div>
-      <span style={{ cursor: "pointer" }} onClick={() => navigate("/")}>
-        Voltar
+      <span
+        style={{ cursor: "pointer", marginTop: "1rem", fontSize: "0.9rem", color: "#ccc" }}
+        onClick={() => navigate("/")}
+      >
+        ⬅️ Voltar
       </span>
     </div>
   );

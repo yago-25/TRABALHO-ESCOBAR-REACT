@@ -7,14 +7,15 @@ const Login = () => {
   return (
     <div>
       <div className="div-title">
-        <h1>Loja Virtual - Acesso</h1>
+        <h1>🛒 Loja Virtual - Acesso</h1>
+        <p>Escolha seu tipo de acesso abaixo 👇</p>
       </div>
       <div className="div-btns">
         <button onClick={() => navigate("/client/home")}>
-          Entrar como Cliente
+          👤 Entrar como Cliente
         </button>
         <button onClick={() => navigate("/login")} className="btn-admin">
-          Entrar como Admin
+          🔐 Entrar como Admin
         </button>
       </div>
     </div>

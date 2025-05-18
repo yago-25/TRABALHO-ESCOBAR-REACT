@@ -5,7 +5,7 @@ import { FiEdit, FiPlus } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import TypingDots from "../../components/TypingDots/TypingDots";
-import { api } from "../../services/api";
+import { api, myUser } from "../../services/api";
 import Loading from "../../components/Loading/Loading";
 import RegisterCategory from "../../components/Modals/RegisterCategory";
 import RegisterProduct from "../../components/Modals/RegisterProduct";
@@ -82,7 +82,10 @@ const AdminPanel = () => {
       setSelectedProduct(null);
     } catch (e) {
       console.log("Erro ao cadastrar/atualizar produto: ", e);
-      alert("Erro ao cadastrar/atualizar produto.");
+      messageAlert({
+        type: "error",
+        message: "Erro ao cadastrar/atualizar produto."
+      });
     } finally {
       setLoadingModal(false);
     }
@@ -516,7 +519,10 @@ const AdminPanel = () => {
           setCategorias(data);
         } catch (e) {
           console.error("Erro ao listar categorias: ", e);
-          alert("Erro ao listar categorias");
+          messageAlert({
+            type: "error",
+            message: "Erro ao listar categorias."
+          });
         } finally {
           setLoading(false);
         }
@@ -524,15 +530,14 @@ const AdminPanel = () => {
       Produtos: async () => {
         setLoading(true);
         try {
-          const { data } = await api.get("/produtos", {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          });
+          const { data } = await api.get(`/produtos/${myUser}`);
           setProdutos(data);
         } catch (e) {
           console.error("Erro ao listar produtos: ", e);
-          alert("Erro ao listar produtos");
+          messageAlert({
+            type: "error",
+            message: "Erro ao listar produtos."
+          });
         } finally {
           setLoading(false);
         }
@@ -548,7 +553,10 @@ const AdminPanel = () => {
           setVendas(data);
         } catch (e) {
           console.error("Erro ao listar vendas: ", e);
-          alert("Erro ao listar vendas");
+          messageAlert({
+            type: "error",
+            message: "Erro ao listar vendas."
+          });
         } finally {
           setLoading(false);
         }
